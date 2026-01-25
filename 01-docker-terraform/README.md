@@ -4,7 +4,7 @@
 * Slides: [link](https://docs.google.com/presentation/d/19pXcInDwBnlvKWCukP5sDoCAb69SPqgIoxJ_0Bikr00/edit?usp=sharing)
 * Code: [pipeline/](pipeline/)
 
-In this workshop, we will explore Docker fundamentals and data engineering workflows using Docker containers. This workshop is an update for Module 1 of the [Data Engineering Zoomcamp](https://github.com/DataTalksClub/data-engineering-zoomcamp).
+In this module, we explore Docker fundamentals and data engineering workflows using Docker containers.
 
 **Data Engineering** is the design and development of systems for collecting, storing and analyzing data at scale.
 
@@ -32,9 +32,15 @@ We will cover:
 
 If working on LINUX working locally should be fine, but if you have Windows using **GitHub codespaces** is more convinient remote environment that already has python and Docker, so we don't need to install them.
 
+To set up terminal in VSCode (and have more space in terminal):
+`PS1="> "`
+
+If you don't want to repeat `PS1="> "` every time in each new terminal:
+`echo 'PS1="> "' > ~/.bashrc`
+
 ## Introduction to Docker
 
-Docker is a _containerization software_ that allows us to isolate software in a similar way to virtual machines but in a much leaner way.
+Docker is a _containerization software_ that allows us to isolate software in a similar way to virtual machines but in a much leaner way. What we have inside Docker container is completely isolated from what we have on our host machine. For example if we run `rm -rf` in Docker container it will not effect on our host machine and system on host machine.
 
 A **Docker image** is a _snapshot_ of a container that we can define to run our software, or in this case our data pipelines. By exporting our Docker images to Cloud providers such as Amazon Web Services or Google Cloud Platform we can run our containers there.
 
