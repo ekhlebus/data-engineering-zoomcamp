@@ -155,19 +155,25 @@ docker run -it \
 ```
 Now we are in python Docker image but with access to bash.
 
-So, we know that with docker we can restore any container to its initial state in a reproducible manner. How to preserve state and what about data? What if we need to have an access to files from within Docker container or if we want to execute `script.py` from Docker container? A common way to do so is with _volumes_.
+So, we know that with docker we can restore any container to its initial state in a reproducible manner. How to preserve state and what about data? What if we need to have an access to files from within Docker container or if we want to execute `list_files.py` from Docker container? 
 
 Let's create some data in `test` folder:
 
 ```bash
 mkdir test
 cd test
-touch file1.txt file2.txt file3.txt script.py
+touch file1.txt file2.txt file3.txt list_files.py
 echo "Hello from host" > file1.txt
 cd ..
 ```
 
-Now let's create a simple script `test/list_files.py` that shows the files in the folder:
+To get full path to `/test` directory in our current directory we can run next (we will use it later):
+
+```bash
+echo $(pwd)/test
+```
+
+Now let's create a simple script `test/list_files.py` that shows the files in the folder and print their content:
 
 ```python
 from pathlib import Path
@@ -188,7 +194,8 @@ for filepath in current_dir.iterdir():
         print(f"    Content: {content}")
 ```
 
-Now let's map this to a Python container:
+How we can execute this script from Docker? One of the option to do that is using _volumes_. In Docker container we can say "Whatever is in this `/test` directory should be available in container too."
+Now let's map this to a Python container we used previously using `-v $(pwd)/test:/app/test`:
 
 ```bash
 docker run -it \
@@ -197,6 +204,7 @@ docker run -it \
     --entrypoint=bash \
     python:3.13.11-slim
 ```
+**Note:** Run this code from the folder which contains `/test` folder you want to be accessible from container.
 
 Inside the container, run:
 
