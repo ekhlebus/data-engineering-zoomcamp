@@ -68,42 +68,51 @@ Check Docker version:
 docker --version
 ```
 
-Run a simple container:
+Run a simple container to see that Docker installation appears to be working correctly.:
 
 ```bash
 docker run hello-world
 ```
 
-Run something more complex:
+Run something more complex. Newer image for 'ubuntu:latest' will be downloaded if unable to find image locally:
 
 ```bash
 docker run ubuntu
 ```
 
-Nothing happens. Need to run it in `-it` mode:
+To see interactive terminal and to go inside Docker container we need to run it in `-it` mode (now it is isolated from host machine):
 
 ```bash
 docker run -it ubuntu
 ```
 
-We don't have `python` there so let's install it:
+Check if we have `python` there:
+
+```bash
+python3
+```
+
+We have `python` on host machine, but we don't have it here in Docker container so let's install it:
 
 ```bash
 apt update && apt install python3
 python3 -V
 ```
 
+To exit container press `ctrl + D`.
 
 Important: Docker containers are stateless - any changes done inside a container will **NOT** be saved when the container is killed and started again.
 
-When you exit the container and use it again, the changes are gone:
+When you exit the container and use it again like below, the changes are gone:
 
 ```bash
 docker run -it ubuntu
 python3 -V
 ```
 
-This is good, because it doesn't affect your host system. Let's say you do something crazy like this:
+Command not found even if we installed `python` previously. Every time we enter Docker container we create a container from Docker image, and this container is exactly what is described in Docker image. This is good, because it doesn't affect your host system.
+
+Let's say you do something crazy like this:
 
 ```bash
 docker run -it ubuntu
@@ -118,7 +127,7 @@ But, this is not _completely_ correct. The state is saved somewhere. We can see 
 docker ps -a
 ```
 
-We can restart one of them, but we won't do it, because it's not a good practice. They take space, so let's delete them:
+We can restart one of them, but we won't do it, because it's not a good practice. They take space, so let's delete them to clean our environment:
 
 ```bash
 docker rm `docker ps -aq`
@@ -133,11 +142,10 @@ docker run -it --rm ubuntu
 There are other base images besides `hello-world` and `ubuntu`. For example, Python:
 
 ```bash
-docker run -it --rm python:3.13.10
+docker run -it python:3.13.10
 # add -slim to get a smaller version
 ```
-
-This one starts `python`. If we want bash, we need to overwrite `entrypoint`:
+Running this Python image we will get not bash but `python` prompt. If we want bash, we need to overwrite `entrypoint`:
 
 ```bash
 docker run -it \
@@ -145,15 +153,16 @@ docker run -it \
     --entrypoint=bash \
     python:3.13.11-slim
 ```
+Now we are in python Docker image but with access to bash.
 
-So, we know that with docker we can restore any container to its initial state in a reproducible manner. But what about data? A common way to do so is with _volumes_.
+So, we know that with docker we can restore any container to its initial state in a reproducible manner. How to preserve state and what about data? What if we need to have an access to files from within Docker container or if we want to execute `script.py` from Docker container? A common way to do so is with _volumes_.
 
-Let's create some data in `test`:
+Let's create some data in `test` folder:
 
 ```bash
 mkdir test
 cd test
-touch file1.txt file2.txt file3.txt
+touch file1.txt file2.txt file3.txt script.py
 echo "Hello from host" > file1.txt
 cd ..
 ```
