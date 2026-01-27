@@ -344,7 +344,7 @@ We can see that now in file explorer in .parquet file is grey and we will not co
 cd ..
 git status
 git add .
-git add .
+git status
 git commit -m 'pipeline'
  
 
