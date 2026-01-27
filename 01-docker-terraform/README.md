@@ -317,7 +317,9 @@ Now we can use this `uv` to install pandas and other dependencies:
 uv add pandas pyarrow
 ```
 
-This adds pandas to your `pyproject.toml` and installs it in the virtual environment.
+This adds pandas and pyarrow to our `pyproject.toml` and installs it in the virtual environment.
+
+We need to say that we want to use python from created virtual environment: `Ctrl + Shift + P` in VSCode, select 'Python: Select Interpreter', select or enter interpreter path (in my case `/workspaces/data-engineering-zoomcamp/01-docker-terraform/pipeline/.venv/bin/python`).
 
 Now we can execute this file:
 
@@ -327,14 +329,25 @@ uv run python pipeline.py 10
 
 We will see:
 
-* `['pipeline.py', '10']`
-* `job finished successfully for day = 10`
+* `arguments ['pipeline.py', '10']`
+* `Running pipeline for month 10`
 
-This script produces a binary (parquet) file, so let's make sure we don't accidentally commit it to git by adding parquet extensions to `.gitignore`:
+This script produces a binary (.parquet) file, so let's make sure we don't accidentally commit it to git by adding parquet extensions to `.gitignore`:
 
 ```
 *.parquet
 ```
+
+We can see that now in file explorer in .parquet file is grey and we will not commit it to git. Also, it is a good idea to commit everything to git:
+
+```
+cd ..
+git status
+git add .
+git add .
+git commit -m 'pipeline'
+ 
+
 
 ## Dockerizing the Pipeline
 
