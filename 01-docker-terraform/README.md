@@ -232,23 +232,37 @@ graph LR
 ```
 
 In this workshop, we'll build pipelines that:
-- Download CSV data from the web
+- Download CSV data from the web for nyc taxi dataset
 - Transform and clean the data with pandas
 - Load it into PostgreSQL for querying
 - Process data in chunks to handle large files
 
-Let's create an example pipeline. First, create a directory `pipeline` and inside, create a file  `pipeline.py`:
-
+Let's create a simple example pipeline. First, create a directory `pipeline` and inside, create a file  `pipeline.py`:
 
 ```python
 import sys
-print("arguments", sys.argv)
-
-day = int(sys.argv[1])
-print(f"Running pipeline for day {day}")
+print("arguments", sys.argv) # arguments which we pass to pipeline.py
 ```
 
-Now let's add pandas:
+Now run this script with parameters to see if it is working:
+
+```bash
+python pipeline.py 12 2738 123
+```
+As an output you should see: `arguments ['pipeline.py', '12', '2738', '123']`
+
+Let's change our `pipeline.py` script and select first provided argument:
+
+```python
+import sys
+print("arguments", sys.argv) 
+
+month = int(sys.argv[1])
+print(f"Running pipeline for month {month}")
+```
+This is how we set parameters for our pipelines.
+
+What if we want to do something more fun? Let's add pandas for data processing:
 
 ```python
 import pandas as pd
@@ -256,10 +270,10 @@ import pandas as pd
 df = pd.DataFrame({"A": [1, 2], "B": [3, 4]})
 print(df.head())
 
-df.to_parquet(f"output_day_{sys.argv[1]}.parquet")
+df.to_parquet(f"output_day_{sys.argv[1]}.parquet") # save the dataframe to a parquet binary file
 ```
 
-We need pandas, but we don't have it. We want to test it before we run things in a container. 
+We need pandas and other dependencies, but we don't have it. We want to test it before we run things in a container. 
 
 We can install it with `pip`:
 
@@ -271,7 +285,7 @@ But this installs it globally on your system. This can cause conflicts if differ
 
 Instead, we want to use a **virtual environment** - an isolated Python environment that keeps dependencies for this project separate from other projects and from your system Python.
 
-We'll use `uv` - a modern, fast Python package and project manager written in Rust. It's much faster than pip and handles virtual environments automatically.
+We'll use `uv` - a modern, fast Python package and project manager written in Rust that can manage virtual environments. It's much faster than pip and handles virtual environments automatically.
 
 ```bash
 pip install uv
@@ -283,21 +297,21 @@ Now initialize a Python project with uv:
 uv init --python=3.13
 ```
 
-This creates a `pyproject.toml` file for managing dependencies and a `.python-version` file.
+This creates a `pyproject.toml` file for managing dependencies and a `.python-version` file. It descibes our project.
 
 Compare the Python versions:
 
 ```bash
 uv run which python  # Python in the virtual environment
-uv run python -V
+uv run python -V     # Python version in my virtual environment: in my case Python 3.13.11
 
 which python        # System Python
-python -V
+python -V           # In my case Python 3.12.1
 ```
 
 You'll see they're different - `uv run` uses the isolated environment.
 
-Now let's add pandas:
+Now we can use this `uv` to install pandas and other dependencies:
 
 ```bash
 uv add pandas pyarrow
