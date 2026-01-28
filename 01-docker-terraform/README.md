@@ -401,7 +401,7 @@ docker run -it --entrypoint=bash --rm test:pandas
 python pipeline.py 3
 ```
 
-After running this comand we can see output we saw previously and created .parquet file.
+After running this comand we can see output we saw previously and created .parquet file. This .parquet file stays inside the container, we don't see it in our host system if we not say to uploaded it to some storage.
 
 > Note: these instructions assume that `pipeline.py` and `Dockerfile` are in the same directory. The Docker commands should also be run from the same directory as these files.
 
@@ -445,8 +445,9 @@ And see how it works. So, we created our first dokerized data pipeline (even if 
 
 ## Running PostgreSQL with Docker
 
-
 Now we want to do real data engineering. Let's use a Postgres database for that.
+
+**PostgreSQL*** (often shortened to "Postgres") is an advanced, open-source object-relational database management system.
 
 You can run a containerized version of Postgres that doesn't require any installation steps. You only need to provide a few _environment variables_ to it as well as a _volume_ for storing data.
 
