@@ -338,7 +338,7 @@ This script produces a binary (.parquet) file, so let's make sure we don't accid
 *.parquet
 ```
 
-We can see that now in file explorer in .parquet file is grey and we will not commit it to git. Also, it is a good idea to commit everything to git:
+We can see that now in file explorer in .parquet file is grey and we will not commit it to git. Also, it is a good idea to commit everything what we have done already to git:
 
 ```
 cd ..
@@ -346,12 +346,11 @@ git status
 git add .
 git status
 git commit -m 'pipeline'
- 
-
+``` 
 
 ## Dockerizing the Pipeline
 
-Now let's containerize the script. Create the following `Dockerfile` file:
+Now let's containerize the script (put everything in Docker container). Instead of using existing Docker image we can create our own Docker image that has nessesary version of python (3.13.11) and all dependencies we need. To create our own Docker image we need to create the following `Dockerfile` file which describes how exactly we build a Docker container:
 
 ```dockerfile
 # base Docker image that we will build on
@@ -373,12 +372,12 @@ ENTRYPOINT ["python", "pipeline.py"]
 **Explanation:**
 
 - `FROM`: Base image (Python 3.13)
-- `RUN`: Execute commands during build
+- `RUN`: What commands to execute during build
 - `WORKDIR`: Set working directory
 - `COPY`: Copy files into the image
 - `ENTRYPOINT`: Default command to run
 
-Let's build the image:
+After preparing Dockerfile we can build Docker container with tag `-t` and base image name `test`, also we need to define directory where we want to build it (in this case in current directory `.`):
 
 ```bash
 docker build -t test:pandas .
@@ -393,6 +392,15 @@ docker run -it test:pandas some_number
 ```
 
 You should get the same output you did when you ran the pipeline script by itself.
+
+Also, we can run the container and run script inside the container. Also, remember that all the things we execute stay in the system unless we delete them using `--rm`, if we include this comand then when we close our Docker container we will not have this state saved somewhere, what is good for our file system (we will not have anything we don't need):
+
+```bash
+docker run -it --entrypoint=bash --rm test:pandas 
+python pipeline.py 3
+```
+
+After running this comand we can see output we saw previously and created .parquet file.
 
 > Note: these instructions assume that `pipeline.py` and `Dockerfile` are in the same directory. The Docker commands should also be run from the same directory as these files.
 
