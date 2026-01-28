@@ -360,9 +360,10 @@ FROM python:3.13.11-slim
 RUN pip install pandas pyarrow
 
 # set up the working directory inside the container
-WORKDIR /app
-# copy the script to the container. 1st name is source file, 2nd is destination
-COPY pipeline.py pipeline.py
+WORKDIR /code
+
+# copy the script from the host system to the container (to Docker image). 1st name is source file, 2nd is destination
+COPY pipeline.py .
 
 # define what to do first when the container runs
 # in this example, we will just run the script
@@ -404,7 +405,7 @@ After running this comand we can see output we saw previously and created .parqu
 
 > Note: these instructions assume that `pipeline.py` and `Dockerfile` are in the same directory. The Docker commands should also be run from the same directory as these files.
 
-What about uv? Let's use it instead of using pip:
+What about uv? Let's use it instead of using pip in our Docker image and use all dependencies we used in our virtual environment:
 
 ```dockerfile
 # Start with slim Python 3.13 image
@@ -414,22 +415,33 @@ FROM python:3.13.10-slim
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
 
 # Set working directory
-WORKDIR /app
+WORKDIR /code
 
 # Add virtual environment to PATH so we can use installed packages
-ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/code/.venv/bin:$PATH"
 
-# Copy dependency files first (better layer caching)
+# Copy dependency files first (better layer caching) to teh current directory
 COPY "pyproject.toml" "uv.lock" ".python-version" ./
-# Install dependencies from lock file (ensures reproducible builds)
+# Install dependencies from uv.lock file (ensures reproducible builds)
 RUN uv sync --locked
 
 # Copy application code
-COPY pipeline.py pipeline.py
+COPY pipeline.py .
 
 # Set entry point
+# We can use next row if we are using ENV PATH
 ENTRYPOINT ["python", "pipeline.py"]
+# We can use next row if we are NOT using ENV PATH
+# ENTRYPOINT ["uv", "run", "python", "pipeline.py"]
 ```
+
+Now we can build container using new instructions and run it:
+
+```bash
+docker build -t test:pandas .
+docker run -it --rm test:pandas some_number
+```
+And see how it works. So, we created our first dokerized data pipeline (even if it is not doing much).
 
 ## Running PostgreSQL with Docker
 
