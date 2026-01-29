@@ -486,6 +486,8 @@ After running code abowe we should see something like:
 database system is ready to accept connections
 ```
 
+Now we can create new terminal and in new terminal we want to access this instance of postgres which is running there.
+
 **Alternative approach - bind mount:**
 
 First create the directory, then map it:
@@ -510,17 +512,17 @@ When you create the directory first, it's owned by your user. If you let Docker 
 * **Bind mount** (`/host/path:/container/path`): Direct mapping to host filesystem, more control
 
 
-Once the container is running, we can log into our database with [pgcli](https://www.pgcli.com/).
+Once the container is running, we can log into our database in new terminal with [pgcli](https://www.pgcli.com/).
 
-Install pgcli:
+Install pgcli (it should be run in directory where we have `pyproject.toml`):
 
 ```bash
-uv add --dev pgcli
+uv add --dev pgcli # install pgcli
 ```
 
 The `--dev` flag marks this as a development dependency (not needed in production). It will be added to the `[dependency-groups]` section of `pyproject.toml` instead of the main `dependencies` section.
 
-Now use it to connect to Postgres:
+Now use it to connect to Postgres, here we are running `pgcli` in virtual environment on our host machine:
 
 ```bash
 uv run pgcli -h localhost -p 5432 -u root -d ny_taxi
@@ -535,7 +537,7 @@ uv run pgcli -h localhost -p 5432 -u root -d ny_taxi
 
 When prompted, enter the password: `root`
 
-Try some SQL commands:
+Try some SQL commands. This is how we can interact with our postgress that is running here:
 
 ```sql
 -- List tables
