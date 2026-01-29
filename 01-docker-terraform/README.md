@@ -444,14 +444,20 @@ docker run -it --rm test:pandas some_number
 And see how it works. So, we created our first dokerized data pipeline (even if it is not doing much).
 
 ## Running PostgreSQL with Docker
+*another useful example of using Dicker run*
 
-Now we want to do real data engineering. Let's use a Postgres database for that.
+Now we want to do real data engineering. Let's use Docker to run Postgres database for that.
 
-**PostgreSQL*** (often shortened to "Postgres") is an advanced, open-source object-relational database management system.
+**PostgreSQL** (often shortened to "Postgres") is an advanced, open-source object-relational database management system.
 
 You can run a containerized version of Postgres that doesn't require any installation steps. You only need to provide a few _environment variables_ to it as well as a _volume_ for storing data.
 
-Create a folder anywhere you'd like for Postgres to store data in. We will use the example folder `ny_taxi_postgres_data`. Here's how to run the container:
+* A Docker _volume_ is a place where Docker stores data outside of a container. Docker _volumes_ are used for:
+    * Saving databases (Postgres, MySQL, etc.)
+    * Storing model files, logs, uploads
+    * Sharing data between containers
+
+Create a folder anywhere you'd like for Postgres to store data in. We will use the example folder `ny_taxi_postgres_data`. Here's how to run the container with postgres 18:
 
 
 ```bash
@@ -466,13 +472,19 @@ docker run -it --rm \
 
 **Explanation of parameters:**
 
-* `-e` sets environment variables (user, password, database name)
-* `-v ny_taxi_postgres_data:/var/lib/postgresql` creates a **named volume**
+* `-e` sets environment variables (user, password, database name) to configure your application
+* `-v ny_taxi_postgres_data:/var/lib/postgresql` creates a **named volume** - internal volume for Docker, that means we will not be able to see what is going on inside and interfere with the content of this files, internal to postgres:
   * Docker manages this volume automatically
   * Data persists even after container is removed
   * Volume is stored in Docker's internal storage
-* `-p 5432:5432` maps port 5432 from container to host
+* `-p 5432:5432` maps port 5432 from container to host, it means that whatever application is running in container it is waiting for request on port 5432 and we want to make it available outside the container, for example from the terminal of host machine.
 * `postgres:18` uses PostgreSQL version 18 (latest as of Dec 2025)
+
+After running code abowe we should see something like:
+
+```
+database system is ready to accept connections
+```
 
 **Alternative approach - bind mount:**
 
