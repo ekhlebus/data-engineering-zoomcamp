@@ -446,7 +446,7 @@ And see how it works. So, we created our first dokerized data pipeline (even if 
 ## Running PostgreSQL with Docker
 *another useful example of using Dicker run*
 
-Now we want to do real data engineering. Let's use Docker to run Postgres database for that.
+Now we want to do real data engineering. Let's use Docker to run Postgres database for that. We are running it inside `pipeline` folder.
 
 **PostgreSQL** (often shortened to "Postgres") is an advanced, open-source object-relational database management system.
 
@@ -477,7 +477,7 @@ docker run -it --rm \
   * Docker manages this volume automatically
   * Data persists even after container is removed
   * Volume is stored in Docker's internal storage
-* `-p 5432:5432` maps port 5432 from container to host, it means that whatever application is running in container it is waiting for request on port 5432 and we want to make it available outside the container, for example from the terminal of host machine.
+* `-p 5432:5432` maps port 5432 on the host machine to the port 5432 in container, it means that whatever application is running in container it is waiting for request on port 5432 and we want to make it available outside the container, for example from the terminal of host machine.
 * `postgres:18` uses PostgreSQL version 18 (latest as of Dec 2025)
 
 After running code abowe we should see something like:
@@ -558,7 +558,7 @@ SELECT * FROM test;
 
 ## NY Taxi Dataset and Data Ingestion
 
-We will now create a Jupyter Notebook `notebook.ipynb` file which we will use to read a CSV file and export it to Postgres.
+So now we have postgres and ingestion script already in the container. Now we want to get ny_taxi .csv data and we want to put it inside postgres. For that we need interactive environment. We will now create a Jupyter Notebook `notebook.ipynb` file which we will use to read a CSV file and export it to Postgres. 
 
 Install Jupyter:
 
@@ -572,6 +572,7 @@ Let's create a Jupyter notebook to explore the data:
 uv run jupyter notebook
 ```
 
+In PORTS we can see `1`, it means that something was automatically detected at port 8888 and it was automatically forwarded into port 8889. We can open it in browser: click globe symbol in Forwarder port and use token from terminal, for example: `189794c293c47b33ceee9be224b9ca534bed4b8e4cf61235` from `http://localhost:8888/tree?token=189794c293c47b33ceee9be224b9ca534bed4b8e4cf61235`. Click `New` -> `python` -> rename
 
 We will use data from the [NYC TLC Trip Record Data website](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page).
 
