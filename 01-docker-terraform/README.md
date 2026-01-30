@@ -422,6 +422,7 @@ ENV PATH="/code/.venv/bin:$PATH"
 
 # Copy dependency files first (better layer caching) to teh current directory
 COPY "pyproject.toml" "uv.lock" ".python-version" ./
+
 # Install dependencies from uv.lock file (ensures reproducible builds)
 RUN uv sync --locked
 
@@ -435,7 +436,7 @@ ENTRYPOINT ["python", "pipeline.py"]
 # ENTRYPOINT ["uv", "run", "python", "pipeline.py"]
 ```
 
-Now we can build container using new instructions and run it:
+Now we can build container using new instructions and run it (building is based on Dockerfile which is in current directory):
 
 ```bash
 docker build -t test:pandas .
@@ -446,7 +447,7 @@ And see how it works. So, we created our first dokerized data pipeline (even if 
 ## Running PostgreSQL with Docker
 *another useful example of using Dicker run*
 
-Now we want to do real data engineering. Let's use Docker to run Postgres database for that. We are running it inside `pipeline` folder.
+Now we want to do real data engineering. Let's use Docker to **run Postgres database** for that. We are running it inside `pipeline` folder.
 
 **PostgreSQL** (often shortened to "Postgres") is an advanced, open-source object-relational database management system.
 
@@ -480,13 +481,23 @@ docker run -it --rm \
 * `-p 5432:5432` maps port 5432 on the host machine to the port 5432 in container, it means that whatever application is running in container it is waiting for request on port 5432 and we want to make it available outside the container, for example from the terminal of host machine.
 * `postgres:18` uses PostgreSQL version 18 (latest as of Dec 2025)
 
-After running code abowe we should see something like:
+After running code above we should see something like:
 
 ```
 database system is ready to accept connections
 ```
 
-Now we can create new terminal and in new terminal we want to access this instance of postgres which is running there.
+Now we can create new terminal and in new terminal we want to access this instance of postgres which is running there. In terminal now I see that we are in our virtual environment `pipeline` and go to the folder `pipeline` which contains `pyproject.toml` file:
+
+```
+> source /workspaces/data-engineering-zoomcamp/01-docker-terraform/pipeline/.venv/bin/activate
+(pipeline) > pwd
+/workspaces/data-engineering-zoomcamp
+(pipeline) > cd 01-docker-terraform/pipeline/
+(pipeline) > ls
+Dockerfile  main.py         output_month_10.parquet  pyproject.toml
+README.md   notebook.ipynb  pipeline.py              uv.lock
+```
 
 **Alternative approach - bind mount:**
 
@@ -512,7 +523,7 @@ When you create the directory first, it's owned by your user. If you let Docker 
 * **Bind mount** (`/host/path:/container/path`): Direct mapping to host filesystem, more control
 
 
-Once the container is running, we can log into our database in new terminal with [pgcli](https://www.pgcli.com/).
+Once the container with postgres is running in one terminal, we can log into our database in new terminal with [pgcli](https://www.pgcli.com/).
 
 Install pgcli (it should be run in directory where we have `pyproject.toml`):
 
