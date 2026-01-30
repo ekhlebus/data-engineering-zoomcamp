@@ -569,7 +569,11 @@ SELECT * FROM test;
 
 ## NY Taxi Dataset and Data Ingestion
 
-So now we have postgres and ingestion script already in the container. Now we want to get ny_taxi .csv data and we want to put it inside postgres. For that we need interactive environment. We will now create a Jupyter Notebook `notebook.ipynb` file which we will use to read a CSV file and export it to Postgres. 
+So now we have postgres and ingestion script already in the container. 
+
+   * An **ingestion script** is a piece of code (often written in Python, SQL, or Bash) designed to automate the process of collecting raw data from various sources and moving it into a centralized destination, such as a data warehouse, data lake, or database. It acts as the "first step" in a data pipeline, acting as the automated bridge that extracts data from applications, APIs, databases, or files, and loads them into a repository for analysis or machine learning. 
+
+Now we want to get ny_taxi .csv data and we want to put it inside postgres. For that we need interactive environment. We will now create a Jupyter Notebook `notebook.ipynb` file which we will use to read a CSV file and export it to Postgres. 
 
 Install Jupyter:
 
@@ -583,7 +587,7 @@ Let's create a Jupyter notebook to explore the data:
 uv run jupyter notebook
 ```
 
-In PORTS we can see `1`, it means that something was automatically detected at port 8888 and it was automatically forwarded into port 8889. We can open it in browser: click globe symbol in Forwarder port and use token from terminal, for example: `189794c293c47b33ceee9be224b9ca534bed4b8e4cf61235` from `http://localhost:8888/tree?token=189794c293c47b33ceee9be224b9ca534bed4b8e4cf61235`. Click `New` -> `python` -> rename
+In PORTS in VS Code we can see blue `1`, it means that something was automatically detected at port 8888 and it was automatically forwarded into port 8889. We can open it in browser: click globe symbol in Forwarder port and use token from terminal, for example: `189794c293c47b33ceee9be224b9ca534bed4b8e4cf61235` from `http://localhost:8888/tree?token=189794c293c47b33ceee9be224b9ca534bed4b8e4cf61235`. Click `New` -> `python` -> rename
 
 We will use data from the [NYC TLC Trip Record Data website](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page).
 
