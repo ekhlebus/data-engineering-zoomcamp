@@ -589,6 +589,8 @@ uv run jupyter notebook
 
 In PORTS in VS Code we can see blue `1`, it means that something was automatically detected at port 8888 and it was automatically forwarded into port 8889. We can open it in browser: click globe symbol in Forwarder port and use token from terminal, for example: `189794c293c47b33ceee9be224b9ca534bed4b8e4cf61235` from `http://localhost:8888/tree?token=189794c293c47b33ceee9be224b9ca534bed4b8e4cf61235`. Click `New` -> `python` -> rename
 
+   * If you don't have port 8888 -> click Add port -> Add 8888
+
 We will use data from the [NYC TLC Trip Record Data website](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page).
 
 Specifically, we will use the [Yellow taxi trip records CSV file for January 2021](https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2021-01.csv.gz).
@@ -673,11 +675,13 @@ In the Jupyter notebook, we create code to:
 3. Convert datetime columns
 4. Insert data into PostgreSQL using SQLAlchemy
 
-First, install SQLAlchemy:
+First of all for ingesting data into Postgres, we need to install SQLAlchemy, this is what pandas using to interact with different databases:
 
 ```bash
 uv add sqlalchemy psycopg2-binary
 ```
+
+After installation we can check our `pyproject.toml` and see that `sqlalchemy` is added.
 
 Create engine
 
