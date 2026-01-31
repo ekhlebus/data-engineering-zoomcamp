@@ -690,10 +690,16 @@ from sqlalchemy import create_engine
 engine = create_engine('postgresql://root:root@localhost:5432/ny_taxi')
 ```
 
+* `postgresql` database we want to connect
+* `root:root` user is root and password is root
+* `@localhost:5432` it is running on localhost and the port is 5432 
+* `ny_taxi` database is this one
+
+
 Get DDL schema for the database:
 
 ```python
-print(pd.io.sql.get_schema(df, name='yellow_taxi_data', con=engine))
+ 
 ```
 
 Output:
@@ -727,14 +733,21 @@ Create the table:
 df.head(n=0).to_sql(name='yellow_taxi_data', con=engine, if_exists='replace')
 ```
 
-`head(n=0)` makes sure we only create the table, we don't add any data yet.
+`head(n=0)` makes sure we only create the table, we don't add any data yet. To quickly check if database was created run `pgcli` again in pipeline directory and check using `\dt`:
 
-We don't want to insert all the data at once. Let's do it in batches and use an iterator for that:
+```bash
+uv run pgcli -h localhost -p 5432 -u root -d ny_taxi
+```
+There we can see that databases created.
+
+We don't want to insert all the data at once. Let's do it in batches and use an iterator for that splitting data into chunks and putting chunks in database one by one:
 
 
 ```python
 df_iter = pd.read_csv(
-    ...
+    url,
+    dtype=dtype,
+    parse_dates=parse_dates,
     iterator=True,
     chunksize=100000
 )
@@ -832,7 +845,11 @@ Connect to it using pgcli:
 uv run pgcli -h localhost -p 5432 -u root -d ny_taxi
 ```
 
-And explore the data.
+And explore the data. For example:
+
+```
+select count(1) from yellow_taxi_data;
+```
 
 
 ## Creating the Data Ingestion Script
