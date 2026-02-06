@@ -854,9 +854,11 @@ select count(1) from yellow_taxi_data;
 ## Creating the Data Ingestion Script
 
 Now let's convert the notebook to a Python script:
+* create notebook.py from notebook.ipynb
+* rename it
 
 ```bash
-uv run jupyter nbconvert --to=script notebook.ipynb
+uv run jupyter nbconvert --to=script notebook.ipynb 
 mv notebook.py ingest_data.py
 ```
 
@@ -964,7 +966,7 @@ if __name__ == '__main__':
     main()
 ```
 
-Then add click:
+Then add `click`:
 
 ```
 use click to parse the arguments. install click with uv 
