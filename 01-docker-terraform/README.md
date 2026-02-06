@@ -683,7 +683,7 @@ uv add sqlalchemy psycopg2-binary
 
 After installation we can check our `pyproject.toml` and see that `sqlalchemy` is added.
 
-Create engine
+Create engine:
 
 ```python
 from sqlalchemy import create_engine
@@ -696,13 +696,13 @@ engine = create_engine('postgresql://root:root@localhost:5432/ny_taxi')
 * `ny_taxi` database is this one
 
 
-Get DDL schema for the database:
+Get DDL schema for the database (this is what we are going to create):
 
 ```python
- 
+print(pd.io.sql.get_schema(df, name='yellow_taxi_data', con=engine))
 ```
 
-Output:
+Output from the previous command:
 
 ```sql
 CREATE TABLE yellow_taxi_data (
@@ -727,7 +727,7 @@ CREATE TABLE yellow_taxi_data (
 )
 ```
 
-Create the table:
+To insert things in database, to create the empty table at first:
 
 ```python
 df.head(n=0).to_sql(name='yellow_taxi_data', con=engine, if_exists='replace')
@@ -738,9 +738,9 @@ df.head(n=0).to_sql(name='yellow_taxi_data', con=engine, if_exists='replace')
 ```bash
 uv run pgcli -h localhost -p 5432 -u root -d ny_taxi
 ```
-There we can see that databases created.
+There we can use `\dt` and see that databases created.
 
-We don't want to insert all the data at once. Let's do it in batches and use an iterator for that splitting data into chunks and putting chunks in database one by one:
+Since our table is very big we don't want to insert all the data at once. Let's do it in batches and use an iterator for that splitting data into chunks and putting chunks in database one by one:
 
 
 ```python
