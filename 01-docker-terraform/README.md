@@ -458,8 +458,7 @@ You can run a containerized version of Postgres that doesn't require any install
     * Storing model files, logs, uploads
     * Sharing data between containers
 
-Create a folder anywhere you'd like for Postgres to store data in. We will use the example folder `ny_taxi_postgres_data`. Here's how to run the container with postgres 18:
-
+Create a folder anywhere you'd like for Postgres to store data in. We will use the example folder `ny_taxi_postgres_data`. Here's how to **run the Docker container with postgres 18**:
 
 ```bash
 docker run -it --rm \
@@ -474,7 +473,7 @@ docker run -it --rm \
 **Explanation of parameters:**
 
 * `-e` sets environment variables (user, password, database name) to configure your application
-* `-v ny_taxi_postgres_data:/var/lib/postgresql` creates a **named volume** - internal volume for Docker, that means we will not be able to see what is going on inside and interfere with the content of this files, internal to postgres:
+* `-v ny_taxi_postgres_data:/var/lib/postgresql` creates a **named Docker volume** - internal volume for Docker, that means we will not be able to see what is going on inside and interfere with the content of this files, internal to postgres:
   * Docker manages this volume automatically
   * Data persists even after container is removed
   * Volume is stored in Docker's internal storage
