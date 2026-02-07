@@ -966,6 +966,12 @@ if __name__ == '__main__':
     main()
 ```
 
+And run it:
+
+```
+uv run python ingest_data.py 
+```
+
 Then add `click`:
 
 ```

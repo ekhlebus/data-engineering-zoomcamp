@@ -2,12 +2,8 @@
 # coding: utf-8
 
 import pandas as pd
-
-prefix = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/'
-url = f'{prefix}/yellow_tripdata_2021-01.csv.gz'
-df = pd.read_csv(url) # we using only 100 rows since total dataset is 1369765 rows
-
-
+from sqlalchemy import create_engine
+from tqdm.auto import tqdm
 
 dtype = {
     "VendorID": "Int64",
@@ -33,75 +29,53 @@ parse_dates = [
     "tpep_dropoff_datetime"
 ]
 
-df = pd.read_csv(
-    url,
-   # nrows=100,
-    dtype=dtype,
-    parse_dates=parse_dates
-)
 
+def run():
 
+    # We have several parameters here
+    year = 2021
+    month = 1
 
-get_ipython().system('uv add sqlalchemy psycopg2-binary')
+    pg_user = 'root'
+    pg_pass = 'root'
+    pg_host = 'localhost'
+    pg_port = 5432
+    pg_db = 'ny_taxi'
 
+    target_table = 'yellow_taxi_data'
 
-# After installation we can check our `pyproject.toml` and see that `sqlalchemy` is added.
+    chunksize = 100000
 
-# Now we want to specify how we want to connect to our database.
+    prefix = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/'
+    url = f'{prefix}/yellow_tripdata_{year}-{month:02d}.csv.gz'
 
-from sqlalchemy import create_engine
-engine = create_engine('postgresql://root:root@localhost:5432/ny_taxi')
+    # Specify how we want to connect to our database.
+    engine = create_engine(f'postgresql://{pg_user}:{pg_pass}@{pg_host}:{pg_port}/{pg_db}')
 
+    # Create iterator when we read the data
+    df_iter = pd.read_csv(
+        url,
+        dtype=dtype,
+        parse_dates=parse_dates,
+        iterator=True,
+        chunksize=chunksize,
+    )
+    
+    first = True
+    for df_chunk in tqdm(df_iter):
+        if first:
+            df_chunk.head(n=0).to_sql(
+                name=target_table,
+                con=engine,
+                if_exists='replace'
+            )
+            first = False
 
-# First of all let's get schema from our table (df) for the database we want to create.
-# 
-# Let's see what we are going to create.
-# We will create a table named "yellow_taxi_data" with next columns:
+        df_chunk.to_sql(
+            name=target_table,
+            con=engine,
+            if_exists='append'
+        )
 
-
-print(pd.io.sql.get_schema(df, name='yellow_taxi_data', con=engine))
-
-
-
-df.head(n=0).to_sql(name='yellow_taxi_data', con=engine, if_exists='replace')
-
-
-# To quickly check if database was created run `pgcli` in pipeline directory in terminal:
-# 
-# ```bash
-# uv run pgcli -h localhost -p 5432 -u root -d ny_taxi
-# ```
-# There we can use `\dt` and see that databases created.
-
-# ## Insert data in batches
-# 
-# Since our table is very big we don't want to insert all the data at once. Let's do it in batches and use an **iterator** for that.
-
-
-
-# Create iterator when we read the data
-df_iter = pd.read_csv(
-    url,
-    dtype=dtype,
-    parse_dates=parse_dates,
-    iterator=True,
-    chunksize=100000,
-)
-
-
-
-get_ipython().system('uv add tqdm')
-
-
-
-from tqdm.auto import tqdm
-
-
-
-for df_chunk in tqdm(df_iter):
-    df_chunk.to_sql(name='yellow_taxi_data', con=engine, if_exists='append')
-
-
-
-
-
+if __name__ == '__main__':
+    run()
