@@ -978,10 +978,10 @@ If we want to configure our script through command line interface we can do it l
 uv run python ingest_data.py --year=2022
 ```
 
-But also we can use copilot and use library `click` for creating command line interface. In copilot:
+But also we can use copilot and use library `click` for creating command line interface. In copilot write:
 
 ```
-use click to create cli parameters for thsi script, parse the arguments. install click with uv 
+use click to create cli parameters for this script, parse the arguments. install click with uv 
 
 params are 
     year = 2021
@@ -1007,7 +1007,6 @@ import click
 
 ...
 
-
 @click.command()
 @click.option('--pg-user', default='root', help='PostgreSQL username')
 @click.option('--pg-pass', default='root', help='PostgreSQL password')
@@ -1022,6 +1021,12 @@ def main(pg_user, pg_pass, pg_host, pg_port, pg_db, year, month, chunksize, targ
     ...
 ```
 
+To see the parameters we have:
+
+```
+uv run python ingest_data.py --help
+```
+
 The script reads data in chunks (100,000 rows at a time) to handle large files efficiently without running out of memory.
 
 
@@ -1034,7 +1039,7 @@ uv run python ingest_data.py \
   --pg-host=localhost \
   --pg-port=5432 \
   --pg-db=ny_taxi \
-  --target-table=yellow_taxi_trips \
+  --target-table=yellow_taxi_trips_2021_1 \
   --year=2021 \
   --month=1 \
   --chunksize=100000
@@ -1042,9 +1047,9 @@ uv run python ingest_data.py \
 
 This will download and ingest the data into your PostgreSQL database.
 
-**Verify Data**
+**Verify if Data is in database**
 
-Connect with pgcli and query the data:
+Connect with `pgcli` and query the data to check successful ingestion:
 
 ```bash
 uv run pgcli -h localhost -p 5432 -u root -d ny_taxi
