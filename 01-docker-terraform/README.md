@@ -966,17 +966,39 @@ if __name__ == '__main__':
     main()
 ```
 
-And run it:
+And to run it:
 
 ```
 uv run python ingest_data.py 
 ```
 
-Then add `click`:
+If we want to configure our script through command line interface we can do it like that:
 
 ```
-use click to parse the arguments. install click with uv 
+uv run python ingest_data.py --year=2022
 ```
+
+But also we can use copilot and use library `click` for creating command line interface. In copilot:
+
+```
+use click to create cli parameters for thsi script, parse the arguments. install click with uv 
+
+params are 
+    year = 2021
+    month = 1
+
+    pg_user = 'root'
+    pg_pass = 'root'
+    pg_host = 'localhost'
+    pg_port = 5432
+    pg_db = 'ny_taxi'
+
+    target_table = 'yellow_taxi_data'
+
+    chunksize = 100000
+```
+
+Then github copilot will rewrite the code.
 
 The result:
 
