@@ -1145,9 +1145,103 @@ docker run -it --rm \
 
 **Important notes:**
 
-* We need to provide the network for Docker to find the Postgres container. It goes before the name of the image.
+* We need to provide the network for Docker to find the Postgres container. It goes before the name of the image `--network=pg-network` (more about networks below).
 * Since Postgres is running on a separate container, the host argument will have to point to the container name of Postgres (`pgdatabase`).
-* You can drop the table in pgAdmin beforehand if you want, but the script will automatically replace the pre-existing table.
+* You can drop the existing table beforehand if you want, but the script will automatically replace the pre-existing table.
+
+**Docker Networks**
+
+Localhost inside the container is not the same as localhost running for postgres. Inside the container nothing running on localhost that is why we need to find a way to connect to localhost where postgres is running. We can do it by creating a **network**.
+
+Let's create a virtual Docker network called `pg-network`:
+
+```bash
+docker network create pg-network
+```
+
+> You can remove the network later with the command `docker network rm pg-network`. You can look at the existing networks with `docker network ls`.
+
+Stop both containers and re-run them with this specific network configuration we just created:
+
+```bash
+# Run PostgreSQL on the network
+docker run -it \
+  -e POSTGRES_USER="root" \
+  -e POSTGRES_PASSWORD="root" \
+  -e POSTGRES_DB="ny_taxi" \
+  -v ny_taxi_postgres_data:/var/lib/postgresql \
+  -p 5432:5432 \
+  --network=pg-network \
+  --name pgdatabase \
+  postgres:18
+
+# In another terminal, run container with ingest_data.py script
+docker run -it --rm \
+  --network=pg-network \
+  taxi_ingest:v001 \
+    --pg-user=root \
+    --pg-pass=root \
+    --pg-host=pgdatabase \
+    --pg-port=5432 \
+    --pg-db=ny_taxi \
+    --target-table=yellow_taxi_trips_2021_2 \
+    --year=2021 \
+    --month=2 \
+    --chunksize=100000
+```
+
+Now those two containers are part of the same network and everything is working. Why networks are important? Things within one network can see each other. If in the network we call postgres container _pgdatabase_ and container with ingest script _ingest_ instead of localhost we can say to connect to _pgdatabase_. In this case when we run things in the same network we will not try to use localhost port of the host machine we will try to use port on the container directly.
+
+## pgAdmin - Database Management Tool
+
+`pgcli` is a handy tool but it's cumbersome to use for complex queries and database management. [`pgAdmin` is a web-based tool](https://www.pgadmin.org/) that makes it more convenient to access and manage our databases.
+
+It's possible to run pgAdmin as a container along with the Postgres container, but both containers will have to be in the same _virtual network_ so that they can find each other.
+
+**Run pgAdmin Container**
+
+```bash
+docker run -it \
+  -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
+  -e PGADMIN_DEFAULT_PASSWORD="root" \
+  -v pgadmin_data:/var/lib/pgadmin \
+  -p 8085:80 \
+  dpage/pgadmin4
+```
+
+The `-v pgadmin_data:/var/lib/pgadmin` volume mapping saves pgAdmin settings (server connections, preferences) so you don't have to reconfigure it every time you restart the container.
+
+* The container needs 2 environment variables: a login email and a password. We use `admin@admin.com` and `root` in this example.
+* pgAdmin is a web app and its default port is 80; we map it to 8085 in our localhost to avoid any possible conflicts.
+* The actual image name is `dpage/pgadmin4`.
+
+**Note:** This won't work yet because pgAdmin can't see the PostgreSQL container. They need to be on the same Docker network!
+
+
+
+**Connect pgAdmin to PostgreSQL**
+
+You should now be able to load pgAdmin on a web browser by browsing to `http://localhost:8085`. Use the same email and password you used for running the container to log in.
+
+1. Open browser and go to `http://localhost:8085`
+2. Login with email: `admin@admin.com`, password: `root`
+3. Right-click "Servers" → Register → Server
+4. Configure:
+   - **General tab**: Name: `Local Docker`
+   - **Connection tab**:
+     - Host: `pgdatabase` (the container name)
+     - Port: `5432`
+     - Username: `root`
+     - Password: `root`
+5. Save
+
+Now you can explore the database using the pgAdmin interface!
+
+--- 
+
+That's all for today. Happy learning! 🐳📊
+
+
 
 ## Docker Compose
 
@@ -1325,55 +1419,8 @@ rm -rf __pycache__ .pytest_cache
 rm -rf .venv
 ```
 
-## pgAdmin - Database Management Tool
 
-`pgcli` is a handy tool but it's cumbersome to use for complex queries and database management. [`pgAdmin` is a web-based tool](https://www.pgadmin.org/) that makes it more convenient to access and manage our databases.
-
-It's possible to run pgAdmin as a container along with the Postgres container, but both containers will have to be in the same _virtual network_ so that they can find each other.
-
-**Run pgAdmin Container**
-
-```bash
-docker run -it \
-  -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
-  -e PGADMIN_DEFAULT_PASSWORD="root" \
-  -v pgadmin_data:/var/lib/pgadmin \
-  -p 8085:80 \
-  dpage/pgadmin4
 ```
-
-The `-v pgadmin_data:/var/lib/pgadmin` volume mapping saves pgAdmin settings (server connections, preferences) so you don't have to reconfigure it every time you restart the container.
-
-* The container needs 2 environment variables: a login email and a password. We use `admin@admin.com` and `root` in this example.
-* pgAdmin is a web app and its default port is 80; we map it to 8085 in our localhost to avoid any possible conflicts.
-* The actual image name is `dpage/pgadmin4`.
-
-**Note:** This won't work yet because pgAdmin can't see the PostgreSQL container. They need to be on the same Docker network!
-
-**Docker Networks**
-
-Let's create a virtual Docker network called `pg-network`:
-
-```bash
-docker network create pg-network
-```
-
-> You can remove the network later with the command `docker network rm pg-network`. You can look at the existing networks with `docker network ls`.
-
-Stop both containers and re-run them with the network configuration:
-
-```bash
-# Run PostgreSQL on the network
-docker run -it \
-  -e POSTGRES_USER="root" \
-  -e POSTGRES_PASSWORD="root" \
-  -e POSTGRES_DB="ny_taxi" \
-  -v ny_taxi_postgres_data:/var/lib/postgresql \
-  -p 5432:5432 \
-  --network=pg-network \
-  --name pgdatabase \
-  postgres:18
-
 # In another terminal, run pgAdmin on the same network
 docker run -it \
   -e PGADMIN_DEFAULT_EMAIL="admin@admin.com" \
@@ -1384,28 +1431,5 @@ docker run -it \
   --name pgadmin \
   dpage/pgadmin4
 ```
-
 * Just like with the Postgres container, we specify a network and a name for pgAdmin.
 * The container names (`pgdatabase` and `pgadmin`) allow the containers to find each other within the network.
-
-**Connect pgAdmin to PostgreSQL**
-
-You should now be able to load pgAdmin on a web browser by browsing to `http://localhost:8085`. Use the same email and password you used for running the container to log in.
-
-1. Open browser and go to `http://localhost:8085`
-2. Login with email: `admin@admin.com`, password: `root`
-3. Right-click "Servers" → Register → Server
-4. Configure:
-   - **General tab**: Name: `Local Docker`
-   - **Connection tab**:
-     - Host: `pgdatabase` (the container name)
-     - Port: `5432`
-     - Username: `root`
-     - Password: `root`
-5. Save
-
-Now you can explore the database using the pgAdmin interface!
-
---- 
-
-That's all for today. Happy learning! 🐳📊
